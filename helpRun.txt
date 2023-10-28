@@ -1,0 +1,7 @@
+run ganache
+quickstart it
+copy RPC Server and change it in code, if necessary
+take private key of a wallet and put it in env
+run "yarn compile"
+run "tsc deploy.ts"
+run "node deploy.js"

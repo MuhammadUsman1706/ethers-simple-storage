@@ -74,7 +74,7 @@ function main() {
                     return [4 /*yield*/, contract.retrieve()];
                 case 4:
                     currentFavoriteNumber = _b.sent();
-                    console.log("Current Favorite Number: ", currentFavoriteNumber);
+                    console.log("Current Favorite Number: ", currentFavoriteNumber.toString());
                     return [2 /*return*/];
             }
         });
