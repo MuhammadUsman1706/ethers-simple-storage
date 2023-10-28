@@ -9,25 +9,28 @@ config();
 
 async function main() {
   const provider = new ethers.JsonRpcProvider("http://127.0.0.1:7545");
-
   // This is the address that we sign out transactions through and also encrypt
   const wallet = new ethers.Wallet(process.env.WalletAddress || "", provider);
-
   // extract abi to deploy, do it synchronously because we need to wait for it
   const abi = readFileSync("./SimpleStorage_sol_SimpleStorage.abi", "utf-8");
   const binary = readFileSync("./SimpleStorage_sol_SimpleStorage.bin", "utf-8");
-
+  // console.log("ABI: ", abi, "BINARY: ", binary);
   // A contract factory is just an object used to deploy contracts
   const contractFactory = new ethers.ContractFactory(abi, binary, wallet);
   console.log("Deploying, please wait...");
 
   // We can add gasLimit, gasPrice below
-  const contract = await contractFactory.deploy();
-  const transactionReceipt = await contract.deploymentTransaction()?.wait(1);
+  let tx = await contractFactory.deploy();
+  const transactionReceipt = await tx.deploymentTransaction()?.wait(1);
+  const contract = new ethers.Contract(
+    transactionReceipt?.contractAddress || "",
+    abi,
+    wallet
+  );
 
   // it is returned whenever a transaction is created
-  console.log("Here is the deployment transaction");
-  console.log(contract.deploymentTransaction());
+  // console.log("Here is the deployment transaction");
+  // console.log(contract.deploymentTransaction());
 
   // This is created only when block confirmation occurs (when we wait for transaction to finish)
   console.log("Here is the transaction receipt");
@@ -51,7 +54,11 @@ async function main() {
   // const sentTxResponse = await wallet.sendTransaction(tx);
   // await sentTxResponse.wait(1);
   // console.log(sentTxResponse);
+  const some = await contract.store(7);
+  const currentFavoriteNumber = await contract.retrieve();
+  console.log("Current Favorite Number: ", currentFavoriteNumber);
 }
+
 main()
   .then(() => process.exit(0))
   .catch((error) => {
