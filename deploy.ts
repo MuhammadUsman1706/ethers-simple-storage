@@ -8,10 +8,10 @@ import { readFileSync } from "fs-extra";
 config();
 
 async function main() {
-  const provider = new ethers.JsonRpcProvider("http://127.0.0.1:7545");
+  const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
 
   // This is the address that we sign out transactions through and also encrypt
-  const wallet = new ethers.Wallet(process.env.WalletAddress || "", provider);
+  const wallet = new ethers.Wallet(String(process.env.PRIVATE_KEY), provider);
 
   // extract abi to deploy, do it synchronously because we need to wait for it
   const abi = readFileSync("./SimpleStorage_sol_SimpleStorage.abi", "utf-8");
@@ -22,20 +22,25 @@ async function main() {
   console.log("Deploying, please wait...");
 
   // We can add gasLimit, gasPrice below
-  let tx = await contractFactory.deploy();
-  const transactionReceipt = await tx.deploymentTransaction()?.wait(1);
+  let contractTransaction = await contractFactory.deploy();
+  const contractTransactionReceipt = await contractTransaction
+    .deploymentTransaction()
+    ?.wait(1);
   const contract = new ethers.Contract(
-    transactionReceipt?.contractAddress || "",
+    contractTransactionReceipt?.contractAddress || "",
     abi,
     wallet
   );
 
   console.log("Here is the transaction receipt");
+  console.log(contractTransactionReceipt);
+
+  const transactionRespnse = await contract.store("7");
+  const transactionReceipt = await transactionRespnse.wait(1);
   console.log(transactionReceipt);
 
-  await contract.store(7);
   const currentFavoriteNumber = await contract.retrieve();
-  console.log("Current Favorite Number: ", currentFavoriteNumber.toString());
+  console.log(`Current Favorite Number: ${currentFavoriteNumber.toString()}`);
 }
 
 main()

@@ -1,5 +1,4 @@
 "use strict";
-// Contract deployment on JS Runtime
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -43,34 +42,19 @@ var fs_extra_1 = require("fs-extra");
 // Local Only
 (0, dotenv_1.config)();
 function main() {
-    var _a;
     return __awaiter(this, void 0, void 0, function () {
-        var provider, wallet, abi, binary, contractFactory, tx, transactionReceipt, contract, currentFavoriteNumber;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
+        var wallet, encryptedJsonKey;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
                 case 0:
-                    provider = new ethers_1.ethers.JsonRpcProvider("http://127.0.0.1:7545");
-                    wallet = new ethers_1.ethers.Wallet(process.env.WalletAddress || "", provider);
-                    abi = (0, fs_extra_1.readFileSync)("./SimpleStorage_sol_SimpleStorage.abi", "utf-8");
-                    binary = (0, fs_extra_1.readFileSync)("./SimpleStorage_sol_SimpleStorage.bin", "utf-8");
-                    contractFactory = new ethers_1.ethers.ContractFactory(abi, binary, wallet);
-                    console.log("Deploying, please wait...");
-                    return [4 /*yield*/, contractFactory.deploy()];
+                    wallet = new ethers_1.ethers.Wallet(process.env.PRIVATE_KEY || "");
+                    return [4 /*yield*/, wallet.encrypt(process.env.PRIVATE_KEY_PASSWORD || ""
+                        // process.env.PRIVATE_KEY || ""
+                        )];
                 case 1:
-                    tx = _b.sent();
-                    return [4 /*yield*/, ((_a = tx.deploymentTransaction()) === null || _a === void 0 ? void 0 : _a.wait(1))];
-                case 2:
-                    transactionReceipt = _b.sent();
-                    contract = new ethers_1.ethers.Contract((transactionReceipt === null || transactionReceipt === void 0 ? void 0 : transactionReceipt.contractAddress) || "", abi, wallet);
-                    console.log("Here is the transaction receipt");
-                    console.log(transactionReceipt);
-                    return [4 /*yield*/, contract.store(7)];
-                case 3:
-                    _b.sent();
-                    return [4 /*yield*/, contract.retrieve()];
-                case 4:
-                    currentFavoriteNumber = _b.sent();
-                    console.log("Current Favorite Number: ".concat(currentFavoriteNumber.toString()));
+                    encryptedJsonKey = _a.sent();
+                    console.log(encryptedJsonKey);
+                    (0, fs_extra_1.writeFileSync)("./.encryptedKey.json", encryptedJsonKey);
                     return [2 /*return*/];
             }
         });
