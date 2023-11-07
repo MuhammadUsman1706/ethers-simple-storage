@@ -11,7 +11,15 @@ async function main() {
   const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
 
   // This is the address that we sign out transactions through and also encrypt
-  const wallet = new ethers.Wallet(String(process.env.PRIVATE_KEY), provider);
+  // const wallet = new ethers.Wallet(String(process.env.PRIVATE_KEY), provider);
+
+  const encryptedJson = readFileSync("./.encryptedKey.json", "utf-8");
+  let wallet = await ethers.Wallet.fromEncryptedJsonSync(
+    encryptedJson,
+    process.env.PRIVATE_KEY_PASSWORD || "",
+  );
+
+  wallet = await wallet.connect(provider);
 
   // extract abi to deploy, do it synchronously because we need to wait for it
   const abi = readFileSync("./SimpleStorage_sol_SimpleStorage.abi", "utf-8");
@@ -29,7 +37,11 @@ async function main() {
   const contract = new ethers.Contract(
     contractTransactionReceipt?.contractAddress || "",
     abi,
-    wallet
+    wallet,
+  );
+
+  console.log(
+    `Contract Address: ${contractTransactionReceipt?.contractAddress}`,
   );
 
   console.log("Here is the transaction receipt");

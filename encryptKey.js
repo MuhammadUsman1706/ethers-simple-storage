@@ -48,9 +48,7 @@ function main() {
             switch (_a.label) {
                 case 0:
                     wallet = new ethers_1.ethers.Wallet(process.env.PRIVATE_KEY || "");
-                    return [4 /*yield*/, wallet.encrypt(process.env.PRIVATE_KEY_PASSWORD || ""
-                        // process.env.PRIVATE_KEY || ""
-                        )];
+                    return [4 /*yield*/, wallet.encrypt(process.env.PRIVATE_KEY_PASSWORD || "")];
                 case 1:
                     encryptedJsonKey = _a.sent();
                     console.log(encryptedJsonKey);
