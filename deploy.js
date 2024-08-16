@@ -9,88 +9,45 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (g && (g = 0, op[0] && (_ = 0)), _) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var ethers_1 = require("ethers");
-var dotenv_1 = require("dotenv");
-var fs_extra_1 = require("fs-extra");
+const ethers_1 = require("ethers");
+const dotenv_1 = require("dotenv");
+const fs_extra_1 = require("fs-extra");
 // Local Only
 (0, dotenv_1.config)();
 function main() {
     var _a;
-    return __awaiter(this, void 0, void 0, function () {
-        var provider, encryptedJson, wallet, abi, binary, contractFactory, contractTransaction, contractTransactionReceipt, contract, transactionRespnse, transactionReceipt, currentFavoriteNumber;
-        return __generator(this, function (_b) {
-            switch (_b.label) {
-                case 0:
-                    provider = new ethers_1.ethers.JsonRpcProvider(process.env.RPC_URL);
-                    encryptedJson = (0, fs_extra_1.readFileSync)("./.encryptedKey.json", "utf-8");
-                    return [4 /*yield*/, ethers_1.ethers.Wallet.fromEncryptedJsonSync(encryptedJson, process.env.PRIVATE_KEY_PASSWORD || "")];
-                case 1:
-                    wallet = _b.sent();
-                    return [4 /*yield*/, wallet.connect(provider)];
-                case 2:
-                    wallet = _b.sent();
-                    abi = (0, fs_extra_1.readFileSync)("./SimpleStorage_sol_SimpleStorage.abi", "utf-8");
-                    binary = (0, fs_extra_1.readFileSync)("./SimpleStorage_sol_SimpleStorage.bin", "utf-8");
-                    contractFactory = new ethers_1.ethers.ContractFactory(abi, binary, wallet);
-                    console.log("Deploying, please wait...");
-                    return [4 /*yield*/, contractFactory.deploy()];
-                case 3:
-                    contractTransaction = _b.sent();
-                    return [4 /*yield*/, ((_a = contractTransaction
-                            .deploymentTransaction()) === null || _a === void 0 ? void 0 : _a.wait(1))];
-                case 4:
-                    contractTransactionReceipt = _b.sent();
-                    contract = new ethers_1.ethers.Contract((contractTransactionReceipt === null || contractTransactionReceipt === void 0 ? void 0 : contractTransactionReceipt.contractAddress) || "", abi, wallet);
-                    console.log("Contract Address: ".concat(contract.getAddress()));
-                    console.log("Here is the transaction receipt");
-                    console.log(contractTransactionReceipt);
-                    return [4 /*yield*/, contract.store("7")];
-                case 5:
-                    transactionRespnse = _b.sent();
-                    return [4 /*yield*/, transactionRespnse.wait(1)];
-                case 6:
-                    transactionReceipt = _b.sent();
-                    console.log(transactionReceipt);
-                    return [4 /*yield*/, contract.retrieve()];
-                case 7:
-                    currentFavoriteNumber = _b.sent();
-                    console.log("Current Favorite Number: ".concat(currentFavoriteNumber.toString()));
-                    return [2 /*return*/];
-            }
-        });
+    return __awaiter(this, void 0, void 0, function* () {
+        const provider = new ethers_1.ethers.JsonRpcProvider(process.env.RPC_URL);
+        // This is the address that we sign out transactions through and also encrypt
+        // const wallet = new ethers.Wallet(String(process.env.PRIVATE_KEY), provider);
+        const encryptedJson = (0, fs_extra_1.readFileSync)("./.encryptedKey.json", "utf-8");
+        let wallet = yield ethers_1.ethers.Wallet.fromEncryptedJsonSync(encryptedJson, process.env.PRIVATE_KEY_PASSWORD || "");
+        wallet = yield wallet.connect(provider);
+        // extract abi to deploy, do it synchronously because we need to wait for it
+        const abi = (0, fs_extra_1.readFileSync)("./SimpleStorage_sol_SimpleStorage.abi", "utf-8");
+        const binary = (0, fs_extra_1.readFileSync)("./SimpleStorage_sol_SimpleStorage.bin", "utf-8");
+        // A contract factory is just an object used to deploy contracts
+        const contractFactory = new ethers_1.ethers.ContractFactory(abi, binary, wallet);
+        console.log("Deploying, please wait...");
+        // We can add gasLimit, gasPrice below
+        let contractTransaction = yield contractFactory.deploy();
+        const contractTransactionReceipt = yield ((_a = contractTransaction
+            .deploymentTransaction()) === null || _a === void 0 ? void 0 : _a.wait(1));
+        const contract = new ethers_1.ethers.Contract((contractTransactionReceipt === null || contractTransactionReceipt === void 0 ? void 0 : contractTransactionReceipt.contractAddress) || "", abi, wallet);
+        console.log(`Contract Address: ${contractTransactionReceipt === null || contractTransactionReceipt === void 0 ? void 0 : contractTransactionReceipt.contractAddress}`);
+        console.log("Here is the transaction receipt");
+        console.log(contractTransactionReceipt);
+        const transactionRespnse = yield contract.store("7");
+        const transactionReceipt = yield transactionRespnse.wait(1);
+        console.log(transactionReceipt);
+        const currentFavoriteNumber = yield contract.retrieve();
+        console.log(`Current Favorite Number: ${currentFavoriteNumber.toString()}`);
     });
 }
 main()
-    .then(function () { return process.exit(0); })
-    .catch(function (error) {
+    .then(() => process.exit(0))
+    .catch((error) => {
     console.log(error);
     process.exit(1);
 });
